@@ -936,7 +936,29 @@ impl TomlManifest {
                 TomlDependency::Detailed(d) => {
                     let mut d = d.clone();
                     // Path dependencies become crates.io deps.
-                    d.path.take();
+                    if let Some(path) = d.path.take() {
+                        if d.version.is_none() {
+                            let dep_manifest_path =
+                                std::env::current_dir()?.join(path).join("Cargo.toml");
+                            if let Ok((manifest, _)) = read_manifest(
+                                &dep_manifest_path.as_path(),
+                                SourceId::crates_io(config)?,
+                                config,
+                            ) {
+                                match manifest {
+                                    EitherManifest::Real(rm) => {
+                                        d.version = Some(rm.summary().version().to_string());
+                                    }
+                                    _ => {}
+                                }
+                            } else {
+                                bail!(
+                                    "could not read manifest for path dependency '{:?}'",
+                                    d.package.unwrap()
+                                );
+                            }
+                        }
+                    }
                     // Same with git dependencies.
                     d.git.take();
                     d.branch.take();

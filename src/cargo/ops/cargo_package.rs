@@ -61,7 +61,7 @@ pub fn package(ws: &Workspace<'_>, opts: &PackageOpts<'_>) -> CargoResult<Option
         check_metadata(pkg, config)?;
     }
 
-    verify_dependencies(pkg)?;
+    // verify_dependencies(pkg)?;
 
     if !pkg.manifest().exclude().is_empty() && !pkg.manifest().include().is_empty() {
         config.shell().warn(
@@ -211,19 +211,19 @@ fn check_metadata(pkg: &Package, config: &Config) -> CargoResult<()> {
 }
 
 // Checks that the package dependencies are safe to deploy.
-fn verify_dependencies(pkg: &Package) -> CargoResult<()> {
-    for dep in pkg.dependencies() {
-        if dep.source_id().is_path() && !dep.specified_req() && dep.is_transitive() {
-            failure::bail!(
-                "all path dependencies must have a version specified \
-                 when packaging.\ndependency `{}` does not specify \
-                 a version.",
-                dep.name_in_toml()
-            )
-        }
-    }
-    Ok(())
-}
+// fn verify_dependencies(pkg: &Package) -> CargoResult<()> {
+//     for dep in pkg.dependencies() {
+//         if dep.source_id().is_path() && !dep.specified_req() && dep.is_transitive() {
+//             failure::bail!(
+//                 "all path dependencies must have a version specified \
+//                  when packaging.\ndependency `{}` does not specify \
+//                  a version.",
+//                 dep.name_in_toml()
+//             )
+//         }
+//     }
+//     Ok(())
+// }
 
 // Checks if the package source is in a *git* DVCS repository. If *git*, and
 // the source is *dirty* (e.g., has uncommitted changes) and not `allow_dirty`
